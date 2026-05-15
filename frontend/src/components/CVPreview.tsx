@@ -60,7 +60,7 @@ function renderCVLine(line: string, index: number) {
   if (trimmed.includes('|')) {
     const parts = trimmed.split('|').map(p => p.trim());
     return (
-      <div key={index} className="flex flex-wrap gap-x-3 text-sm mt-2">
+      <div key={index} className="flex flex-wrap gap-x-3 text-sm mt-5">
         <span className="text-slate-900 font-semibold">{parts[0]}</span>
         {parts.slice(1).map((p, i) => (
           <span key={i} className="text-slate-500">{p}</span>

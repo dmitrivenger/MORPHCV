@@ -119,7 +119,7 @@ export async function generatePDF(cvContent: string): Promise<Buffer> {
           if (isRoleHeader) {
             // Role line: bold left part, grey right parts
             const parts = line.split('|').map(p => p.trim());
-            doc.moveDown(0.25);
+            doc.moveDown(1);
             doc.font('Helvetica-Bold').fontSize(9.5).fillColor('#111111');
             doc.text(parts[0], LEFT, doc.y, { continued: parts.length > 1, width: WIDTH });
             if (parts.length > 1) {
