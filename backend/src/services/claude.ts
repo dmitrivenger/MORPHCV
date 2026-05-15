@@ -4,7 +4,7 @@ import { ParsedCV, JobPosting, ParsedJD, ChatMessage } from '../types';
 import { logger } from '../utils/logger';
 import { AppError } from '../utils/errors';
 
-const MODEL = 'claude-opus-4-5';
+const MODEL = 'claude-sonnet-4-6';
 
 const FIXED_NAME = 'Dmitri Venger';
 const FIXED_CONTACT = 'Mob / WhatsApp: +44(0)7596320384 | E-mail: venger@hotmail.co.uk | London, N6 5AA, UK';

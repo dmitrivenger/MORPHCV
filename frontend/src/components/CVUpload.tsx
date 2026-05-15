@@ -35,7 +35,8 @@ export default function CVUpload({ onCVParsed, existingCV }: Props) {
       const parsed = await parseCV(rawText);
       onCVParsed(parsed);
     } catch (err) {
-      setError((err as Error).message || 'Failed to parse CV. Please try again.');
+      const msg = err instanceof Error ? err.message : String(err);
+      setError(msg || 'Failed to parse CV. Please try again.');
       setUploadedFile(null);
     } finally {
       setIsLoading(false);
