@@ -19,18 +19,23 @@ export default function JobInput({ onJobFetched, existingJob }: Props) {
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
-    const hasUrl = url.trim().length > 0;
-    const hasText = rawText.trim().length > 0;
-    if (!hasUrl && !hasText) {
-      setError('Please provide a job URL or paste the job description text.');
+
+    if (activeTab === 'url' && !url.trim()) {
+      setError('Please enter a job URL.');
       return;
     }
+    if (activeTab === 'text' && rawText.trim().length < 50) {
+      setError('Please paste the job description text (minimum 50 characters).');
+      return;
+    }
+
     setIsLoading(true);
     try {
-      const job = await fetchJobDescription({
-        url: hasUrl ? url.trim() : undefined,
-        raw_text: !hasUrl && hasText ? rawText.trim() : undefined,
-      });
+      const job = await fetchJobDescription(
+        activeTab === 'url'
+          ? { url: url.trim() }
+          : { raw_text: rawText.trim() }
+      );
       onJobFetched(job);
     } catch (err) {
       const message = (err as Error).message;
@@ -52,7 +57,7 @@ export default function JobInput({ onJobFetched, existingJob }: Props) {
           className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${
             activeTab === 'url' ? 'bg-white shadow-sm text-slate-700 border border-blue-100' : 'text-slate-500 hover:text-slate-700'
           }`}
-          onClick={() => setActiveTab('url')}
+          onClick={() => { setActiveTab('url'); setError(null); }}
           type="button"
         >
           Paste URL
@@ -61,7 +66,7 @@ export default function JobInput({ onJobFetched, existingJob }: Props) {
           className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${
             activeTab === 'text' ? 'bg-white shadow-sm text-slate-700 border border-blue-100' : 'text-slate-500 hover:text-slate-700'
           }`}
-          onClick={() => setActiveTab('text')}
+          onClick={() => { setActiveTab('text'); setError(null); }}
           type="button"
         >
           Paste Text
