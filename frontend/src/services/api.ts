@@ -2,7 +2,7 @@ import axios from 'axios';
 import { ParsedCV, JobPosting } from '../types';
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || '/api',
+  baseURL: import.meta.env.VITE_API_URL || 'https://morphcv.onrender.com/api',
   timeout: parseInt(import.meta.env.VITE_API_TIMEOUT || '60000', 10),
   headers: {
     'Content-Type': 'application/json',
@@ -60,7 +60,7 @@ export function streamChatRefinement(
   onDone: () => void,
   onError: (err: Error) => void
 ): () => void {
-  const baseUrl = import.meta.env.VITE_API_URL || '';
+  const baseUrl = import.meta.env.VITE_API_URL || 'https://morphcv.onrender.com';
   const url = `${baseUrl}/api/chat`;
 
   const controller = new AbortController();
