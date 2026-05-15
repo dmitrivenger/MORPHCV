@@ -27,34 +27,43 @@ async function extractFromDocx(file: File): Promise<string> {
 }
 
 async function extractFromPdf(file: File): Promise<string> {
-  const pdfjsLib = await import('pdfjs-dist');
-  const workerUrl = new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url);
-  pdfjsLib.GlobalWorkerOptions.workerSrc = workerUrl.toString();
+  try {
+    const pdfjsLib = await import('pdfjs-dist');
+    const workerUrl = new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url);
+    pdfjsLib.GlobalWorkerOptions.workerSrc = workerUrl.toString();
 
-  const arrayBuffer = await file.arrayBuffer();
-  const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    const arrayBuffer = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
 
-  const textParts: string[] = [];
+    const textParts: string[] = [];
 
-  for (let i = 1; i <= pdf.numPages; i++) {
-    const page = await pdf.getPage(i);
-    const content = await page.getTextContent();
-    const pageText = content.items
-      .map((item: unknown) => {
-        const textItem = item as { str?: string };
-        return textItem.str || '';
-      })
-      .join(' ');
-    textParts.push(pageText);
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const content = await page.getTextContent();
+      const pageText = content.items
+        .map((item: unknown) => {
+          const textItem = item as { str?: string };
+          return textItem.str || '';
+        })
+        .join(' ');
+      textParts.push(pageText);
+    }
+
+    const text = textParts.join('\n').replace(/\s+/g, ' ').trim();
+
+    if (!text) {
+      throw new Error('Could not extract text from PDF. The PDF may be image-based or encrypted.');
+    }
+
+    return text;
+  } catch (err) {
+    if (err instanceof Error) throw err;
+    // pdfjs errors thrown from the worker lose their prototype chain via postMessage
+    const msg = (err && typeof err === 'object' && 'message' in err)
+      ? String((err as { message: unknown }).message)
+      : `PDF error: ${JSON.stringify(err)}`;
+    throw new Error(msg || 'Failed to read PDF file.');
   }
-
-  const text = textParts.join('\n').replace(/\s+/g, ' ').trim();
-
-  if (!text) {
-    throw new Error('Could not extract text from PDF. The PDF may be image-based or encrypted.');
-  }
-
-  return text;
 }
 
 export function formatFileSize(bytes: number): string {
