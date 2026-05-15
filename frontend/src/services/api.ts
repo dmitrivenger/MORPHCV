@@ -12,14 +12,22 @@ const api = axios.create({
 api.interceptors.response.use(
   res => res,
   err => {
-    const raw = err.response?.data?.error;
-    const message =
-      typeof raw === 'string' ? raw :
-      raw && typeof raw === 'object' ? (raw.message ?? JSON.stringify(raw)) :
-      err.response?.data?.message ??
-      err.message ??
-      'An unexpected error occurred';
-    return Promise.reject(new Error(String(message)));
+    const data = err.response?.data;
+    let message: string;
+    if (typeof data?.error === 'string') {
+      message = data.error;
+    } else if (data?.error && typeof data.error === 'object') {
+      message = typeof data.error.message === 'string'
+        ? data.error.message
+        : JSON.stringify(data.error);
+    } else if (typeof data?.message === 'string') {
+      message = data.message;
+    } else if (typeof err.message === 'string' && err.message) {
+      message = err.message;
+    } else {
+      message = 'An unexpected error occurred';
+    }
+    return Promise.reject(new Error(message));
   }
 );
 

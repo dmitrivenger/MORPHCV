@@ -35,7 +35,16 @@ export default function CVUpload({ onCVParsed, existingCV }: Props) {
       const parsed = await parseCV(rawText);
       onCVParsed(parsed);
     } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
+      console.error('CV upload error:', err);
+      let msg: string;
+      if (err instanceof Error) {
+        msg = err.message;
+      } else if (err && typeof err === 'object') {
+        const e = err as Record<string, unknown>;
+        msg = typeof e.message === 'string' ? e.message : JSON.stringify(err);
+      } else {
+        msg = String(err);
+      }
       setError(msg || 'Failed to parse CV. Please try again.');
       setUploadedFile(null);
     } finally {
